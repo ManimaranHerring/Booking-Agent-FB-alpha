@@ -1,0 +1,45 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int           @id @default(autoincrement())
+  name     String?
+  email    String?       @unique
+  sessions ChatSession[]
+}
+
+model ChatSession {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  user      User       @relation(fields: [userId], references: [id])
+  messages  Message[]
+  bookings  Booking[]
+  createdAt DateTime   @default(now())
+}
+
+model Message {
+  id        Int        @id @default(autoincrement())
+  sessionId Int
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+  role      String
+  content   String
+  meta      Json?
+  createdAt DateTime   @default(now())
+}
+
+model Booking {
+  id        Int        @id @default(autoincrement())
+  sessionId Int
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+  type      String
+  amount    Float       @default(0)
+  details   Json
+  status    String      @default("pending")
+  createdAt DateTime    @default(now())
+}
